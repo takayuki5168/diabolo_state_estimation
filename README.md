@@ -10,6 +10,7 @@ $ cd /path/to/catkin_ws
 $ cd src
 $ git clone https://github.com/takayuki5168/diabolo_state_estimation
 $ cd diabolo_state_estimation
+$ rosdep install --from-paths . -i
 $ catkin bt   # This also enables us download a rosbag.
 ```
 
