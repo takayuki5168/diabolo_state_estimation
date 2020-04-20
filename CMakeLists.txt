@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED COMPONENTS system)
 
+add_custom_target(${PROJECT_NAME}_install_learning_datasets ALL COMMAND ${PROJECT_SOURCE_DIR}/scripts/download_demo_pr2_bag.py)
+
 catkin_package()
 
 include_directories(
