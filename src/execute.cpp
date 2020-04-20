@@ -12,16 +12,16 @@ class EstimateDiaboloStateNode
 public:
   EstimateDiaboloStateNode(bool debug_print=false)
     : debug_print_(debug_print),
-    nh_(""), pnh_("~"), r_(30),
-    pitch_(0), yaw_(0),
-    min_cube_x_(0.3), max_cube_x_(1.0),
-    min_cube_y_(-0.2), max_cube_y_(0.2),
-    min_cube_z_(0.1), max_cube_z_(0.7)
+      nh_(""), pnh_("~"),
+      pitch_(0), yaw_(0),
+      min_cube_x_(0.4), max_cube_x_(1.0),
+      min_cube_y_(-0.2), max_cube_y_(0.2),
+      min_cube_z_(0.2), max_cube_z_(0.7)
 
   {
     // rosparam
     pnh_.getParam("topic_name", topic_name_);
-    pnh_.getParam("frame_name", frame_name_);
+    pnh_.getParam("frame_id", frame_id_);
 
     pnh_.getParam("min_cube_x", min_cube_x_);
     pnh_.getParam("max_cube_x", max_cube_x_);
@@ -51,7 +51,7 @@ public:
 private:
   void initMarker() {
     // marker for diabolo state
-    diabolo_state_marker_.header.frame_id = frame_name_;
+    diabolo_state_marker_.header.frame_id = frame_id_;
     diabolo_state_marker_.ns = "diabolo_state_marker";
     diabolo_state_marker_.id = 0;
     diabolo_state_marker_.type = visualization_msgs::Marker::CYLINDER;
@@ -66,7 +66,7 @@ private:
     diabolo_state_marker_.lifetime = ros::Duration();
 
     // marker for diabolo cube
-    diabolo_cube_marker_.header.frame_id = frame_name_;
+    diabolo_cube_marker_.header.frame_id = frame_id_;
     diabolo_cube_marker_.ns = "diabolo_cube_marker";
     diabolo_cube_marker_.id = 1;
     diabolo_cube_marker_.type = visualization_msgs::Marker::CUBE;
@@ -74,18 +74,18 @@ private:
     diabolo_cube_marker_.pose.position.x = (max_cube_x_ + min_cube_x_) / 2.0;
     diabolo_cube_marker_.pose.position.y = (max_cube_y_ + min_cube_y_) / 2.0;
     diabolo_cube_marker_.pose.position.z = (max_cube_z_ + min_cube_z_) / 2.0;
-    diabolo_cube_marker_.scale.x = std::abs(max_cube_x_ - min_cube_x_);
-    diabolo_cube_marker_.scale.y = std::abs(max_cube_y_ - min_cube_y_);
-    diabolo_cube_marker_.scale.z = std::abs(max_cube_z_ - min_cube_z_);
+    diabolo_cube_marker_.scale.x = max_cube_x_ - min_cube_x_;
+    diabolo_cube_marker_.scale.y = max_cube_y_ - min_cube_y_;
+    diabolo_cube_marker_.scale.z = max_cube_z_ - min_cube_z_;
     diabolo_cube_marker_.color.r = 1.0f;
     diabolo_cube_marker_.color.g = 0.2f;
     diabolo_cube_marker_.color.b = 0.0f;
-    diabolo_cube_marker_.color.a = 0.3;
+    diabolo_cube_marker_.color.a = 0.2;
     diabolo_cube_marker_.lifetime = ros::Duration();
 
     // marker for diabolo plane
-    diabolo_plane_marker_.header.frame_id = frame_name_;
-    diabolo_plane_marker_.header.stamp = ros::Time::now();
+    diabolo_plane_marker_.header.frame_id = frame_id_;
+    //diabolo_plane_marker_.header.stamp = ros::Time::now();
     diabolo_plane_marker_.ns = "diabolo_plane_marker";
     diabolo_plane_marker_.id = 0;
     diabolo_plane_marker_.type = visualization_msgs::Marker::CUBE;
@@ -96,7 +96,7 @@ private:
     diabolo_plane_marker_.color.r = 0.0f;
     diabolo_plane_marker_.color.g = 0.0f;
     diabolo_plane_marker_.color.b = 1.0f;
-    diabolo_plane_marker_.color.a = 1.0;
+    diabolo_plane_marker_.color.a = 0.2;
     diabolo_plane_marker_.lifetime = ros::Duration();
   }
 
@@ -113,7 +113,7 @@ private:
     pcl::PointCloud<pcl::PointXYZ> diabolo_points;
     int diabolo_points_num = 0;
     for (pcl::PointCloud<pcl::PointXYZ>::iterator p = pointcloud.points.begin(); p != pointcloud.points.end(); *p++) {
-      if (p->x < max_cube_x_ and p->x > min_cube_x_ and p->y > min_cube_y_ and p->y < max_cube_y_ and p->z > min_cube_z_ and p->z < max_cube_z_) { // if point is in cube
+      if (min_cube_x_ < p->x and p->x < max_cube_x_ and min_cube_y_ < p->y and p->y < max_cube_y_ and min_cube_z_ < p->z and p->z < max_cube_z_) { // if point is in cube
         max_diabolo_x = (max_diabolo_x > p->x) ? max_diabolo_x : p->x;
         min_diabolo_x = (min_diabolo_x < p->x) ? min_diabolo_x : p->x;
 
@@ -131,8 +131,8 @@ private:
     { // publish diabolo points
       sensor_msgs::PointCloud2 msg_diabolo_points;
       pcl::toROSMsg(diabolo_points, msg_diabolo_points);
-      msg_diabolo_points.header.frame_id = frame_name_;
-      msg_diabolo_points.header.stamp = ros::Time::now();
+      msg_diabolo_points.header.frame_id = frame_id_;
+      //msg_diabolo_points.header.stamp = ros::Time::now();
       pub_diabolo_points_.publish(msg_diabolo_points);
     }
 
@@ -179,8 +179,8 @@ private:
     }
 
     { // publish diabolo state marker
-      diabolo_state_marker_.header.frame_id = frame_name_;
-      diabolo_state_marker_.header.stamp = ros::Time::now();
+      diabolo_state_marker_.header.frame_id = frame_id_;
+      //diabolo_state_marker_.header.stamp = ros::Time::now();
       diabolo_state_marker_.pose.position.x = sum_diabolo_x / diabolo_points_num;
       diabolo_state_marker_.pose.position.y = sum_diabolo_y / diabolo_points_num;
       diabolo_state_marker_.pose.position.z = sum_diabolo_z / diabolo_points_num;
@@ -190,14 +190,14 @@ private:
     }
 
     { // publish diabolo cube marker
-      diabolo_cube_marker_.header.frame_id = frame_name_;
-      diabolo_cube_marker_.header.stamp = ros::Time::now();
+      diabolo_cube_marker_.header.frame_id = frame_id_;
+      //diabolo_cube_marker_.header.stamp = ros::Time::now();
       pub_diabolo_cube_marker_.publish(diabolo_cube_marker_);
     }
 
     { // publish diabolo plane marker
-      diabolo_plane_marker_.header.frame_id = frame_name_;
-      diabolo_plane_marker_.header.stamp = ros::Time::now();
+      diabolo_plane_marker_.header.frame_id = frame_id_;
+      //diabolo_plane_marker_.header.stamp = ros::Time::now();
       diabolo_plane_marker_.pose.position.x = mid_diabolo_x;
       diabolo_plane_marker_.pose.position.y = sum_diabolo_y / diabolo_points_num;
       diabolo_plane_marker_.pose.position.z = sum_diabolo_z / diabolo_points_num;
@@ -205,7 +205,7 @@ private:
     }
   }
 
-  std::string topic_name_, frame_name_;
+  std::string topic_name_, frame_id_;
   bool debug_print_;
 
   // ros params
@@ -217,8 +217,6 @@ private:
   ros::Publisher pub_diabolo_state_marker_, pub_diabolo_cube_marker_, pub_diabolo_plane_marker_;
 
   visualization_msgs::Marker diabolo_state_marker_, diabolo_cube_marker_, diabolo_plane_marker_;
-
-  ros::Rate r_;
 
   // cube params
   double min_cube_x_, max_cube_x_;

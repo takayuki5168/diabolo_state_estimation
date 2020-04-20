@@ -1,13 +1,14 @@
 <launch>
+  <!-- estimate diabolo orientation -->
   <node name="diabolo_state_estimation" pkg="diabolo_state_estimation" type="execute" output="screen">
     <param name="topic_name" value="/camera/depth_registered/points"/>
-    <param name="frame_name" value="base_footprint"/>
+    <param name="frame_id" value="base"/>
 
-    <param name="min_cube_x" value="0.3"/>
+    <param name="min_cube_x" value="0.4"/>
     <param name="max_cube_x" value="1.0"/>
     <param name="min_cube_y" value="-0.2"/>
     <param name="max_cube_y" value="0.2"/>
-    <param name="min_cube_z" value="0.1"/>
+    <param name="min_cube_z" value="0.2"/>
     <param name="max_cube_z" value="0.7"/>
   </node>
 </launch>
