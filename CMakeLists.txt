@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 2.8.3)
 project(diabolo_state_estimation)
 
 find_package(catkin REQUIRED COMPONENTS
-  sensor_msgs
   roscpp
+  std_msgs
+  sensor_msgs
+  visualization_msgs
   pcl_conversions
   pcl_ros
-)
-
-find_package(Boost REQUIRED COMPONENTS system)
+  )
 
 catkin_package()
 
