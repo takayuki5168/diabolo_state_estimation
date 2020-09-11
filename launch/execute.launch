@@ -1,14 +1,30 @@
 <launch>
+  <arg name="min_x" default="0.4"/>
+  <arg name="max_x" default="1.0"/>
+  <arg name="min_y" default="-0.2"/>
+  <arg name="max_y" default="0.2"/>
+  <arg name="min_z" default="0.2"/>
+  <arg name="max_z" default="0.7"/>
+
+  <arg name="topic_name" default="/camera/depth_registered/points"/>
+  <arg name="world_frame" default="base_footprint"/>
+
+  <!-- transform pointcloud -->
+  <node name="tf_transform_cloud" pkg="jsk_pcl_ros" type="tf_transform_cloud">
+    <remap from="~input" to="$(arg topic_name)" />
+    <param name="~target_frame_id" value="$(arg world_frame)"/>
+  </node>
+
   <!-- estimate diabolo orientation -->
   <node name="diabolo_state_estimation" pkg="diabolo_state_estimation" type="execute" output="screen">
-    <param name="topic_name" value="/camera/depth_registered/points"/>
-    <param name="frame_id" value="base"/>
+    <param name="topic_name" value="/tf_transform_cloud/output"/>
+    <param name="world_frame" value="$(arg world_frame)"/>
 
-    <param name="min_cube_x" value="0.4"/>
-    <param name="max_cube_x" value="1.0"/>
-    <param name="min_cube_y" value="-0.2"/>
-    <param name="max_cube_y" value="0.2"/>
-    <param name="min_cube_z" value="0.2"/>
-    <param name="max_cube_z" value="0.7"/>
+    <param name="min_cube_x" value="$(arg min_x)"/>
+    <param name="max_cube_x" value="$(arg max_x)"/>
+    <param name="min_cube_y" value="$(arg min_y)"/>
+    <param name="max_cube_y" value="$(arg max_y)"/>
+    <param name="min_cube_z" value="$(arg min_z)"/>
+    <param name="max_cube_z" value="$(arg max_z)"/>
   </node>
 </launch>

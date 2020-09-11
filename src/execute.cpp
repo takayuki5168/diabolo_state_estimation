@@ -21,7 +21,7 @@ public:
   {
     // rosparam
     pnh_.getParam("topic_name", topic_name_);
-    pnh_.getParam("frame_id", frame_id_);
+    pnh_.getParam("world_frame", world_frame_);
 
     pnh_.getParam("min_cube_x", min_cube_x_);
     pnh_.getParam("max_cube_x", max_cube_x_);
@@ -51,7 +51,7 @@ public:
 private:
   void initMarker() {
     // marker for diabolo state
-    diabolo_state_marker_.header.frame_id = frame_id_;
+    diabolo_state_marker_.header.frame_id = world_frame_;
     diabolo_state_marker_.ns = "diabolo_state_marker";
     diabolo_state_marker_.id = 0;
     diabolo_state_marker_.type = visualization_msgs::Marker::CYLINDER;
@@ -66,7 +66,7 @@ private:
     diabolo_state_marker_.lifetime = ros::Duration();
 
     // marker for diabolo cube
-    diabolo_cube_marker_.header.frame_id = frame_id_;
+    diabolo_cube_marker_.header.frame_id = world_frame_;
     diabolo_cube_marker_.ns = "diabolo_cube_marker";
     diabolo_cube_marker_.id = 1;
     diabolo_cube_marker_.type = visualization_msgs::Marker::CUBE;
@@ -84,7 +84,7 @@ private:
     diabolo_cube_marker_.lifetime = ros::Duration();
 
     // marker for diabolo plane
-    diabolo_plane_marker_.header.frame_id = frame_id_;
+    diabolo_plane_marker_.header.frame_id = world_frame_;
     //diabolo_plane_marker_.header.stamp = ros::Time::now();
     diabolo_plane_marker_.ns = "diabolo_plane_marker";
     diabolo_plane_marker_.id = 0;
@@ -131,7 +131,7 @@ private:
     { // publish diabolo points
       sensor_msgs::PointCloud2 msg_diabolo_points;
       pcl::toROSMsg(diabolo_points, msg_diabolo_points);
-      msg_diabolo_points.header.frame_id = frame_id_;
+      msg_diabolo_points.header.frame_id = world_frame_;
       //msg_diabolo_points.header.stamp = ros::Time::now();
       pub_diabolo_points_.publish(msg_diabolo_points);
     }
@@ -179,7 +179,7 @@ private:
     }
 
     { // publish diabolo state marker
-      diabolo_state_marker_.header.frame_id = frame_id_;
+      diabolo_state_marker_.header.frame_id = world_frame_;
       //diabolo_state_marker_.header.stamp = ros::Time::now();
       diabolo_state_marker_.pose.position.x = sum_diabolo_x / diabolo_points_num;
       diabolo_state_marker_.pose.position.y = sum_diabolo_y / diabolo_points_num;
@@ -190,13 +190,13 @@ private:
     }
 
     { // publish diabolo cube marker
-      diabolo_cube_marker_.header.frame_id = frame_id_;
+      diabolo_cube_marker_.header.frame_id = world_frame_;
       //diabolo_cube_marker_.header.stamp = ros::Time::now();
       pub_diabolo_cube_marker_.publish(diabolo_cube_marker_);
     }
 
     { // publish diabolo plane marker
-      diabolo_plane_marker_.header.frame_id = frame_id_;
+      diabolo_plane_marker_.header.frame_id = world_frame_;
       //diabolo_plane_marker_.header.stamp = ros::Time::now();
       diabolo_plane_marker_.pose.position.x = mid_diabolo_x;
       diabolo_plane_marker_.pose.position.y = sum_diabolo_y / diabolo_points_num;
@@ -205,7 +205,7 @@ private:
     }
   }
 
-  std::string topic_name_, frame_id_;
+  std::string topic_name_, world_frame_;
   bool debug_print_;
 
   // ros params
