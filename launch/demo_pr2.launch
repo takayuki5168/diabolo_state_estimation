@@ -1,6 +1,14 @@
 <launch>
-  <arg name="topic_name" default="/tf_transform_cloud/output"/>
-  <arg name="frame_id" default="base_footprint"/>
+  <include file="$(find diabolo_state_estimation)/launch/execute.launch">
+    <arg name="min_x" value="0.4"/>
+    <arg name="max_x" value="1.0"/>
+    <arg name="min_y" value="-0.2"/>
+    <arg name="max_y" value="0.2"/>
+    <arg name="min_z" value="0.2"/>
+    <arg name="max_z" value="0.7"/>
+    <arg name="topic_name" value="/kinect_head/depth_registered/points"/>
+    <arg name="world_frame" value="base_footprint"/>
+  </include>
 
   <!-- upload robot model -->
   <include file="$(find pr2_description)/robots/upload_pr2.launch"/>
@@ -10,23 +18,4 @@
 
   <!-- rviz -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find diabolo_state_estimation)/config/demo_pr2.rviz"/>
-
-  <!-- transform pointcloud to /base_footprint -->
-  <node name="tf_transform_cloud" pkg="jsk_pcl_ros" type="tf_transform_cloud">
-    <remap from="~input" to="kinect_head/depth_registered/points" />
-    <param name="~target_frame_id" value="base_footprint"/>
-  </node>
-
-  <!-- estimate diabolo orientation -->
-  <node name="diabolo_state_estimation" pkg="diabolo_state_estimation" type="execute" output="screen">
-    <param name="topic_name" value="$(arg topic_name)"/>
-    <param name="frame_id" value="$(arg frame_id)"/>
-
-    <param name="min_cube_x" value="0.4"/>
-    <param name="max_cube_x" value="1.0"/>
-    <param name="min_cube_y" value="-0.2"/>
-    <param name="max_cube_y" value="0.2"/>
-    <param name="min_cube_z" value="0.2"/>
-    <param name="max_cube_z" value="0.7"/>
-  </node>
 </launch>
